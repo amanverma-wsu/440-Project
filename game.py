@@ -4,10 +4,23 @@ import sys
 from board import Board
 from ai import MinimaxAgent, AlphaBetaAgent, RandomAgent
 from heuristic import evaluate_board
+from qlearning import QLearningAgent
 
 
 def get_ai_agent(player_symbol, board_size, algorithm):
     """Create an AI agent based on board size and selected algorithm."""
+    if algorithm == "qlearning":
+        agent = QLearningAgent(player_symbol)
+        qtable_path = "qtable.json"
+        if agent.load_qtable(qtable_path):
+            print("Loaded pre-trained Q-table from qtable.json")
+        else:
+            print("No saved Q-table found. Training Q-Learning agent (50,000 episodes)...")
+            agent.train(num_episodes=50000, board_size=board_size)
+            agent.save_qtable(qtable_path)
+            print("Training complete. Q-table saved to qtable.json")
+        return agent
+
     if board_size <= 3:
         # Full-depth search for 3×3
         if algorithm == "minimax":
@@ -25,9 +38,9 @@ def get_ai_agent(player_symbol, board_size, algorithm):
 
 def play_game():
     """Main game loop for human vs AI play."""
-    print("=" * 40)
-    print("  Tic-Tac-Toe AI (Minimax + Alpha-Beta)")
-    print("=" * 40)
+    print("=" * 45)
+    print("  Tic-Tac-Toe AI (Minimax + Alpha-Beta + RL)")
+    print("=" * 45)
 
     # Board size selection
     while True:
@@ -43,12 +56,18 @@ def play_game():
     print("\nSelect AI algorithm:")
     print("  1. Minimax (no pruning)")
     print("  2. Alpha-Beta pruning (recommended)")
+    print("  3. Q-Learning (reinforcement learning, 3×3 only)")
     while True:
-        choice = input("Choice (1/2, default 2): ") or "2"
-        if choice in ("1", "2"):
+        choice = input("Choice (1/2/3, default 2): ") or "2"
+        if choice in ("1", "2", "3"):
             break
         print("Invalid choice.")
-    algorithm = "minimax" if choice == "1" else "alphabeta"
+
+    if choice == "3" and size != 3:
+        print("Q-Learning is only supported for 3×3 boards. Falling back to Alpha-Beta.")
+        choice = "2"
+
+    algorithm = {"1": "minimax", "2": "alphabeta", "3": "qlearning"}[choice]
 
     # Player order selection
     print("\nDo you want to play as X (first) or O (second)?")
@@ -64,8 +83,10 @@ def play_game():
     ai = get_ai_agent(ai_symbol, size, algorithm)
 
     print(f"\nYou are '{human_symbol}', AI is '{ai_symbol}'")
-    print(f"Algorithm: {'Minimax' if algorithm == 'minimax' else 'Alpha-Beta Pruning'}")
-    if ai.depth_limit:
+    algo_names = {"minimax": "Minimax", "alphabeta": "Alpha-Beta Pruning",
+                  "qlearning": "Q-Learning"}
+    print(f"Algorithm: {algo_names[algorithm]}")
+    if hasattr(ai, 'depth_limit') and ai.depth_limit:
         print(f"Depth limit: {ai.depth_limit}")
     print(f"Board size: {size}×{size}\n")
 

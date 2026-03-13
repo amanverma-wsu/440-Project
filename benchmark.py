@@ -1,10 +1,11 @@
-"""Benchmarking and performance analysis: Minimax vs Alpha-Beta pruning."""
+"""Benchmarking and performance analysis: Minimax vs Alpha-Beta vs Q-Learning."""
 
 import time
 import random
 from board import Board
 from ai import MinimaxAgent, AlphaBetaAgent, RandomAgent
 from heuristic import evaluate_board
+from qlearning import QLearningAgent
 
 
 def run_ai_vs_random(ai_class, board_size, num_games=100, depth_limit=None):
@@ -57,10 +58,56 @@ def run_ai_vs_random(ai_class, board_size, num_games=100, depth_limit=None):
     }
 
 
+def run_qlearning_vs_random(trained_agent, board_size=3, num_games=100):
+    """
+    Run a pre-trained Q-Learning agent vs Random.
+    Returns the same result dict format as run_ai_vs_random.
+    """
+    ai_symbol = trained_agent.player
+    random_symbol = trained_agent.opponent
+
+    wins, draws, losses = 0, 0, 0
+    total_time = 0.0
+    total_moves = 0
+
+    for _ in range(num_games):
+        board = Board(board_size)
+        rand_agent = RandomAgent(random_symbol)
+
+        while not board.is_terminal():
+            current = board.current_player()
+            if current == ai_symbol:
+                move = trained_agent.get_move(board)
+                total_time += trained_agent.stats.elapsed_time
+                total_moves += 1
+            else:
+                move = rand_agent.get_move(board)
+
+            if move:
+                board.make_move(move[0], move[1], current)
+
+        winner = board.check_winner()
+        if winner == ai_symbol:
+            wins += 1
+        elif winner == random_symbol:
+            losses += 1
+        else:
+            draws += 1
+
+    return {
+        "wins": wins,
+        "draws": draws,
+        "losses": losses,
+        "avg_nodes_per_move": 1.0,  # Q-learning is always a single table lookup
+        "avg_time_per_move": total_time / max(total_moves, 1),
+        "total_moves": total_moves,
+    }
+
+
 def compare_algorithms(board_size=3, num_games=50):
-    """Compare Minimax vs Alpha-Beta on the same board size."""
+    """Compare Minimax vs Alpha-Beta vs Q-Learning on the same board size."""
     print(f"\n{'=' * 60}")
-    print(f"  Comparison: Minimax vs Alpha-Beta ({board_size}×{board_size} board)")
+    print(f"  Comparison: Minimax vs Alpha-Beta vs Q-Learning ({board_size}×{board_size})")
     print(f"  Running {num_games} games each against a random opponent")
     print(f"{'=' * 60}\n")
 
@@ -75,6 +122,19 @@ def compare_algorithms(board_size=3, num_games=50):
         print(f"  Wins: {result['wins']}, Draws: {result['draws']}, Losses: {result['losses']}")
         print(f"  Avg nodes/move: {result['avg_nodes_per_move']:.1f}")
         print(f"  Avg time/move:  {result['avg_time_per_move']:.6f}s")
+        print()
+
+    # Q-Learning (only for 3×3 where Q-table is practical)
+    if board_size == 3:
+        print("Running Q-Learning (training 50,000 episodes)...")
+        ql_agent = QLearningAgent(Board.X, epsilon=0.3)
+        ql_agent.train(num_episodes=50000, board_size=board_size)
+        ql_result = run_qlearning_vs_random(ql_agent, board_size, num_games)
+        results["Q-Learning"] = ql_result
+
+        print(f"  Wins: {ql_result['wins']}, Draws: {ql_result['draws']}, Losses: {ql_result['losses']}")
+        print(f"  Avg nodes/move: {ql_result['avg_nodes_per_move']:.1f} (table lookup)")
+        print(f"  Avg time/move:  {ql_result['avg_time_per_move']:.6f}s")
         print()
 
     # Node reduction
