@@ -376,6 +376,15 @@ def run_all_experiments():
     generate_plots(node_results, depth_results, scaling_results,
                    ql_rewards, ql_comparison)
 
+    # Neural Network experiments
+    try:
+        from nn_experiments import run_nn_experiments
+        run_nn_experiments()
+    except ImportError:
+        print("\nNN experiments not available (missing nn_heuristic.py or PyTorch)")
+    except Exception as e:
+        print(f"\nNN experiments failed: {e}")
+
     print("\n" + "=" * 60)
     print("  All experiments complete!")
     print("=" * 60)

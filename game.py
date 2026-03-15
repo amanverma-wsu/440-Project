@@ -5,6 +5,7 @@ from board import Board
 from ai import MinimaxAgent, AlphaBetaAgent, RandomAgent
 from heuristic import evaluate_board
 from qlearning import QLearningAgent
+from nn_heuristic import make_nn_heuristic
 
 
 def get_ai_agent(player_symbol, board_size, algorithm):
@@ -20,6 +21,11 @@ def get_ai_agent(player_symbol, board_size, algorithm):
             agent.save_qtable(qtable_path)
             print("Training complete. Q-table saved to qtable.json")
         return agent
+
+    if algorithm == "nn":
+        nn_heuristic = make_nn_heuristic(board_size)
+        depth = None if board_size <= 3 else (6 if board_size == 4 else 4)
+        return AlphaBetaAgent(player_symbol, depth_limit=depth, heuristic=nn_heuristic)
 
     if board_size <= 3:
         # Full-depth search for 3×3
@@ -39,7 +45,7 @@ def get_ai_agent(player_symbol, board_size, algorithm):
 def play_game():
     """Main game loop for human vs AI play."""
     print("=" * 45)
-    print("  Tic-Tac-Toe AI (Minimax + Alpha-Beta + RL)")
+    print("  Tic-Tac-Toe AI (Minimax + Alpha-Beta + RL + NN)")
     print("=" * 45)
 
     # Board size selection
@@ -57,9 +63,10 @@ def play_game():
     print("  1. Minimax (no pruning)")
     print("  2. Alpha-Beta pruning (recommended)")
     print("  3. Q-Learning (reinforcement learning, 3×3 only)")
+    print("  4. Neural Network heuristic (learned evaluation)")
     while True:
-        choice = input("Choice (1/2/3, default 2): ") or "2"
-        if choice in ("1", "2", "3"):
+        choice = input("Choice (1/2/3/4, default 2): ") or "2"
+        if choice in ("1", "2", "3", "4"):
             break
         print("Invalid choice.")
 
@@ -67,7 +74,7 @@ def play_game():
         print("Q-Learning is only supported for 3×3 boards. Falling back to Alpha-Beta.")
         choice = "2"
 
-    algorithm = {"1": "minimax", "2": "alphabeta", "3": "qlearning"}[choice]
+    algorithm = {"1": "minimax", "2": "alphabeta", "3": "qlearning", "4": "nn"}[choice]
 
     # Player order selection
     print("\nDo you want to play as X (first) or O (second)?")
@@ -84,7 +91,7 @@ def play_game():
 
     print(f"\nYou are '{human_symbol}', AI is '{ai_symbol}'")
     algo_names = {"minimax": "Minimax", "alphabeta": "Alpha-Beta Pruning",
-                  "qlearning": "Q-Learning"}
+                  "qlearning": "Q-Learning", "nn": "Neural Network Heuristic"}
     print(f"Algorithm: {algo_names[algorithm]}")
     if hasattr(ai, 'depth_limit') and ai.depth_limit:
         print(f"Depth limit: {ai.depth_limit}")

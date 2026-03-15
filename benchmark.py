@@ -170,6 +170,49 @@ def scalability_analysis():
               f"{result['losses']:<8} {result['avg_nodes_per_move']:<12.1f} {result['avg_time_per_move']:<12.6f}s")
 
 
+def run_nn_vs_handcrafted(board_size=4, num_games=50, depth_limit=4):
+    """Run AlphaBeta+NN vs AlphaBeta+Handcrafted head-to-head."""
+    try:
+        from nn_heuristic import make_nn_heuristic
+    except ImportError:
+        print("NN heuristic not available.")
+        return None
+
+    nn_heuristic = make_nn_heuristic(board_size)
+    nn_wins, hc_wins, draws = 0, 0, 0
+
+    for game_num in range(num_games):
+        board = Board(board_size)
+        if game_num % 2 == 0:
+            nn_sym, hc_sym = Board.X, Board.O
+        else:
+            nn_sym, hc_sym = Board.O, Board.X
+
+        nn_agent = AlphaBetaAgent(nn_sym, depth_limit=depth_limit,
+                                   heuristic=nn_heuristic)
+        hc_agent = AlphaBetaAgent(hc_sym, depth_limit=depth_limit,
+                                   heuristic=evaluate_board)
+
+        while not board.is_terminal():
+            current = board.current_player()
+            if current == nn_sym:
+                move = nn_agent.get_move(board)
+            else:
+                move = hc_agent.get_move(board)
+            if move:
+                board.make_move(move[0], move[1], current)
+
+        winner = board.check_winner()
+        if winner == nn_sym:
+            nn_wins += 1
+        elif winner == hc_sym:
+            hc_wins += 1
+        else:
+            draws += 1
+
+    return {"nn_wins": nn_wins, "hc_wins": hc_wins, "draws": draws}
+
+
 if __name__ == "__main__":
     random.seed(42)
 
