@@ -333,6 +333,12 @@ def make_nn_heuristic(board_size=3):
 
     def nn_evaluate(board, ai_player, opponent):
         if board_size not in _cached_models:
+            weight_path = f"results/nn_weights_{board_size}x{board_size}.pt"
+            if not os.path.exists(weight_path):
+                print(f"No trained model for {board_size}x{board_size}. Training now...")
+                np.random.seed(42)
+                torch.manual_seed(42)
+                train_nn(board_size=board_size, epochs=300)
             _cached_models[board_size] = _load_numpy_weights(board_size)
 
         weights = _cached_models[board_size]
