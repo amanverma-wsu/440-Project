@@ -24,7 +24,7 @@ def get_ai_agent(player_symbol, board_size, algorithm):
 
     if algorithm == "nn":
         nn_heuristic = make_nn_heuristic(board_size)
-        depth = None if board_size <= 3 else (6 if board_size == 4 else 4)
+        depth = None if board_size <= 3 else (4 if board_size == 4 else 2)
         return AlphaBetaAgent(player_symbol, depth_limit=depth, heuristic=nn_heuristic)
 
     if board_size <= 3:
