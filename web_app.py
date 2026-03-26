@@ -156,5 +156,12 @@ def _find_winning_line(board, symbol):
 
 
 if __name__ == "__main__":
-    print("\n  Open http://localhost:8080 in your browser\n")
-    app.run(debug=False, port=8080)
+    import sys
+    host = "0.0.0.0" if "--host" in sys.argv else "127.0.0.1"
+    print(f"\n  Open http://localhost:8080 in your browser")
+    if host == "0.0.0.0":
+        import socket
+        ip = socket.gethostbyname(socket.gethostname())
+        print(f"  Other devices: http://{ip}:8080")
+    print()
+    app.run(debug=False, port=8080, host=host)
