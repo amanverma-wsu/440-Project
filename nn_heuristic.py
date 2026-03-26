@@ -132,11 +132,10 @@ def generate_training_data(board_size=3):
     return np.array(data_x), np.array(data_y, dtype=np.float32)
 
 
-def generate_training_data_sampled(board_size, num_samples=10000, depth_limit=8):
+def generate_training_data_sampled(board_size, num_samples=5000, depth_limit=2):
     """Generate training data for larger boards by sampling random game states
-    and scoring them with depth-limited Alpha-Beta + handcrafted heuristic.
+    and scoring them with the handcrafted heuristic directly (fast).
     """
-    from ai import AlphaBetaAgent
     from heuristic import evaluate_board
 
     ai_player = Board.X
@@ -165,12 +164,10 @@ def generate_training_data_sampled(board_size, num_samples=10000, depth_limit=8)
             continue
         visited.add(key)
 
-        # Score with depth-limited alpha-beta
-        agent = AlphaBetaAgent(ai_player, depth_limit=depth_limit,
-                               heuristic=evaluate_board)
-        score = _minimax_score_limited(board, agent, depth_limit)
+        # Score directly with handcrafted heuristic (fast)
+        score = evaluate_board(board, ai_player, opponent)
         data_x.append(encode_board(board, ai_player, opponent))
-        data_y.append(max(-1.0, min(1.0, score / 10.0)))
+        data_y.append(max(-1.0, min(1.0, score / 50.0)))  # Normalize heuristic range
 
     return np.array(data_x), np.array(data_y, dtype=np.float32)
 

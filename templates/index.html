@@ -4,111 +4,183 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tic-Tac-Toe AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            font-family: 'Nunito', system-ui, sans-serif;
+            background: #f5f5f5;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #fff;
+            color: #333;
         }
 
         .container {
             text-align: center;
-            max-width: 600px;
+            max-width: 650px;
             width: 100%;
-            padding: 20px;
+            padding: 30px 20px;
         }
 
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
+        /* Section headers */
+        .section-title {
+            font-family: 'Bungee', cursive;
+            font-size: 2.2rem;
+            color: #f0932b;
+            text-transform: uppercase;
             margin-bottom: 5px;
-            background: linear-gradient(90deg, #f093fb, #f5576c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.08);
         }
 
-        .subtitle {
-            color: #888;
-            font-size: 0.9rem;
+        .section-divider {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #5b9bd5, transparent);
+            margin: 8px 0 20px;
+        }
+
+        /* Grid selection cards */
+        .grid-options {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
             margin-bottom: 30px;
         }
 
-        /* Menu */
-        .menu {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 35px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .menu-section {
-            margin-bottom: 25px;
-        }
-
-        .menu-section label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #aaa;
-            margin-bottom: 12px;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn-option {
-            padding: 10px 20px;
-            border: 2px solid rgba(255,255,255,0.15);
-            border-radius: 10px;
-            background: rgba(255,255,255,0.05);
-            color: #ccc;
+        .grid-card {
+            width: 160px;
+            padding: 15px;
+            border-radius: 16px;
+            background: #999;
             cursor: pointer;
-            font-size: 0.95rem;
+            transition: all 0.2s;
+            border: 4px solid transparent;
+        }
+
+        .grid-card:hover { transform: translateY(-3px); }
+
+        .grid-card.active {
+            background: #5b9bd5;
+            border-color: #3a7cc3;
+        }
+
+        .grid-card-label {
+            font-family: 'Bungee', cursive;
+            font-size: 1.6rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .grid-preview {
+            display: inline-grid;
+            gap: 3px;
+            padding: 8px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 10px;
+        }
+
+        .grid-preview .mini-cell {
+            width: 18px;
+            height: 18px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+        }
+
+        .grid-card.size-4 .mini-cell { width: 14px; height: 14px; }
+        .grid-card.size-5 .mini-cell { width: 11px; height: 11px; }
+
+        /* Mode selection */
+        .mode-options {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .mode-btn {
+            padding: 14px 45px;
+            border-radius: 30px;
+            border: none;
+            font-family: 'Bungee', cursive;
+            font-size: 1.2rem;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #999;
+        }
+
+        .mode-btn:hover { transform: translateY(-2px); }
+        .mode-btn.active { background: #5b9bd5; }
+
+        /* Algorithm selection (shown in CPU mode) */
+        .algo-section {
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .algo-options {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .algo-btn {
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 3px solid #ddd;
+            background: #fff;
+            color: #666;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
             transition: all 0.2s;
         }
 
-        .btn-option:hover {
-            border-color: rgba(255,255,255,0.3);
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-        }
+        .algo-btn:hover { border-color: #5b9bd5; color: #5b9bd5; }
+        .algo-btn.active { border-color: #5b9bd5; background: #5b9bd5; color: #fff; }
 
-        .btn-option.active {
-            border-color: #f5576c;
-            background: rgba(245, 87, 108, 0.2);
-            color: #fff;
-        }
-
-        .btn-start {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #f093fb, #f5576c);
-            color: #fff;
+        /* Score display */
+        .score-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            color: #5b9bd5;
+            font-weight: 800;
             font-size: 1.1rem;
-            font-weight: 700;
+        }
+
+        .star { font-size: 1.4rem; }
+
+        /* Play button */
+        .play-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            background: #5b9bd5;
+            border: none;
             cursor: pointer;
-            transition: transform 0.15s, box-shadow 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(91,155,213,0.4);
             margin-top: 10px;
         }
 
-        .btn-start:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
+        .play-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(91,155,213,0.5);
+        }
+
+        .play-btn svg {
+            width: 40px;
+            height: 40px;
+            fill: white;
         }
 
         /* Game board */
@@ -118,30 +190,29 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             padding: 12px 20px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
+            background: #5b9bd5;
+            border-radius: 30px;
+            color: #fff;
         }
 
         .status-text {
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-family: 'Bungee', cursive;
+            font-size: 1rem;
         }
 
         .stats-text {
             font-size: 0.8rem;
-            color: #888;
+            opacity: 0.8;
         }
 
         .board {
             display: inline-grid;
             gap: 6px;
             padding: 15px;
-            background: rgba(255,255,255,0.05);
+            background: #e8e8e8;
             border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.1);
             margin-bottom: 20px;
         }
 
@@ -149,31 +220,31 @@
             width: 100px;
             height: 100px;
             border-radius: 12px;
-            background: rgba(255,255,255,0.06);
-            border: 2px solid rgba(255,255,255,0.08);
+            background: #fff;
+            border: 3px solid #ddd;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-family: 'Bungee', cursive;
             font-size: 2.5rem;
-            font-weight: 800;
             transition: all 0.15s;
             user-select: none;
         }
 
         .cell:hover:not(.taken):not(.game-over) {
-            background: rgba(255,255,255,0.12);
-            border-color: rgba(255,255,255,0.2);
-            transform: scale(1.03);
+            background: #eef5fc;
+            border-color: #5b9bd5;
+            transform: scale(1.05);
         }
 
-        .cell.x { color: #f5576c; text-shadow: 0 0 20px rgba(245,87,108,0.5); }
-        .cell.o { color: #43e97b; text-shadow: 0 0 20px rgba(67,233,123,0.5); }
+        .cell.x { color: #f0932b; }
+        .cell.o { color: #5b9bd5; }
 
         .cell.win {
             animation: pulse 0.6s ease infinite alternate;
-            border-color: rgba(255,215,0,0.6);
-            background: rgba(255,215,0,0.1);
+            border-color: #f0932b;
+            background: #fef3e2;
         }
 
         @keyframes pulse {
@@ -185,95 +256,116 @@
         .cell.game-over { cursor: default; }
 
         .game-result {
+            font-family: 'Bungee', cursive;
             font-size: 1.8rem;
-            font-weight: 800;
             margin-bottom: 15px;
             min-height: 45px;
         }
 
-        .game-result.win { color: #43e97b; }
-        .game-result.lose { color: #f5576c; }
-        .game-result.draw { color: #ffd700; }
+        .game-result.win { color: #27ae60; }
+        .game-result.lose { color: #e74c3c; }
+        .game-result.draw { color: #f0932b; }
+
+        .game-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
 
         .btn-back {
             padding: 12px 30px;
-            border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 10px;
-            background: transparent;
-            color: #fff;
+            border: 3px solid #ddd;
+            border-radius: 30px;
+            background: #fff;
+            color: #666;
+            font-weight: 800;
             font-size: 1rem;
             cursor: pointer;
             transition: all 0.2s;
-            margin: 0 5px;
         }
 
-        .btn-back:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: rgba(255,255,255,0.4);
-        }
+        .btn-back:hover { border-color: #5b9bd5; color: #5b9bd5; }
 
         .btn-restart {
             padding: 12px 30px;
             border: none;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #f093fb, #f5576c);
+            border-radius: 30px;
+            background: #5b9bd5;
             color: #fff;
+            font-weight: 800;
             font-size: 1rem;
-            font-weight: 600;
             cursor: pointer;
             transition: transform 0.15s;
-            margin: 0 5px;
         }
 
         .btn-restart:hover { transform: translateY(-2px); }
 
-        .thinking {
-            display: inline-block;
-            animation: dots 1.5s infinite;
-        }
-
-        @keyframes dots {
-            0%, 20% { content: '.'; }
-            40% { content: '..'; }
-            60%, 100% { content: '...'; }
-        }
-
         /* Board size adjustments */
         .board.size-4 .cell { width: 85px; height: 85px; font-size: 2rem; }
-        .board.size-5 .cell { width: 72px; height: 72px; font-size: 1.7rem; }
+        .board.size-5 .cell { width: 72px; height: 72px; font-size: 1.6rem; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Tic-Tac-Toe</h1>
-        <p class="subtitle">Minimax &bull; Alpha-Beta &bull; Neural Network</p>
-
         <!-- Menu -->
-        <div class="menu" id="menu">
-            <div class="menu-section">
-                <label>Board Size</label>
-                <div class="btn-group">
-                    <button class="btn-option active" data-group="size" data-value="3">3 &times; 3</button>
-                    <button class="btn-option" data-group="size" data-value="4">4 &times; 4</button>
-                    <button class="btn-option" data-group="size" data-value="5">5 &times; 5</button>
+        <div id="menu">
+            <div class="section-title">Choose a Grid</div>
+            <div class="section-divider"></div>
+
+            <div class="grid-options">
+                <div class="grid-card active" data-size="3" onclick="selectSize(this, 3)">
+                    <div class="grid-card-label">3X3</div>
+                    <div class="grid-preview" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+                        <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+                        <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+                    </div>
+                </div>
+                <div class="grid-card size-4" data-size="4" onclick="selectSize(this, 4)">
+                    <div class="grid-card-label">4X4</div>
+                    <div class="grid-preview" style="grid-template-columns: repeat(4, 1fr);">
+                        <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+                        <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+                        <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+                        <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+                    </div>
+                </div>
+                <div class="grid-card size-5" data-size="5" onclick="selectSize(this, 5)">
+                    <div class="grid-card-label">5X5</div>
+                    <div class="grid-preview" style="grid-template-columns: repeat(5, 1fr);">
+                        <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+                        <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+                        <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+                        <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+                        <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+                    </div>
                 </div>
             </div>
-            <div class="menu-section">
-                <label>AI Algorithm</label>
-                <div class="btn-group">
-                    <button class="btn-option" data-group="algo" data-value="minimax">Minimax</button>
-                    <button class="btn-option active" data-group="algo" data-value="alphabeta">Alpha-Beta</button>
-                    <button class="btn-option" data-group="algo" data-value="nn">Neural Net</button>
+
+            <div class="section-title">Mode</div>
+            <div class="section-divider"></div>
+
+            <div class="mode-options">
+                <button class="mode-btn active" onclick="selectMode(this, 'cpu')">CPU</button>
+                <button class="mode-btn" onclick="selectMode(this, '2p')">2 Players</button>
+            </div>
+
+            <div class="algo-section" id="algoSection">
+                <div class="algo-options">
+                    <button class="algo-btn active" data-algo="alphabeta" onclick="selectAlgo(this, 'alphabeta')">Alpha-Beta</button>
+                    <button class="algo-btn" data-algo="minimax" onclick="selectAlgo(this, 'minimax')">Minimax</button>
+                    <button class="algo-btn" data-algo="nn" onclick="selectAlgo(this, 'Neural Net')">Neural Net</button>
                 </div>
             </div>
-            <div class="menu-section">
-                <label>Play As</label>
-                <div class="btn-group">
-                    <button class="btn-option active" data-group="player" data-value="X">X (First)</button>
-                    <button class="btn-option" data-group="player" data-value="O">O (Second)</button>
-                </div>
+
+            <div class="score-display">
+                <span class="star">&#9733;</span>
+                <span id="scoreCount">0</span>
             </div>
-            <button class="btn-start" id="startBtn">Start Game</button>
+
+            <button class="play-btn" onclick="startGame()">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
         </div>
 
         <!-- Game -->
@@ -284,33 +376,38 @@
             </div>
             <div class="board" id="board"></div>
             <div class="game-result" id="result"></div>
-            <div>
-                <button class="btn-back" id="menuBtn">Menu</button>
-                <button class="btn-restart" id="restartBtn">Play Again</button>
+            <div class="game-buttons">
+                <button class="btn-back" id="menuBtn" onclick="showMenu()">Menu</button>
+                <button class="btn-restart" id="restartBtn" onclick="startGame()">Play Again</button>
             </div>
         </div>
     </div>
 
     <script>
-        let config = { size: 3, algorithm: 'alphabeta', human: 'X' };
+        let config = { size: 3, algorithm: 'alphabeta', human: 'X', mode: 'cpu' };
         let gameOver = false;
         let winningLine = null;
+        let score = 0;
+        let currentPlayer = 'X';
 
-        // Menu option buttons
-        document.querySelectorAll('.btn-option').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const group = btn.dataset.group;
-                document.querySelectorAll(`.btn-option[data-group="${group}"]`).forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                if (group === 'size') config.size = parseInt(btn.dataset.value);
-                if (group === 'algo') config.algorithm = btn.dataset.value;
-                if (group === 'player') config.human = btn.dataset.value;
-            });
-        });
+        function selectSize(el, size) {
+            document.querySelectorAll('.grid-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            config.size = size;
+        }
 
-        document.getElementById('startBtn').addEventListener('click', startGame);
-        document.getElementById('menuBtn').addEventListener('click', showMenu);
-        document.getElementById('restartBtn').addEventListener('click', startGame);
+        function selectMode(el, mode) {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            config.mode = mode;
+            document.getElementById('algoSection').style.display = mode === 'cpu' ? 'block' : 'none';
+        }
+
+        function selectAlgo(el, algo) {
+            document.querySelectorAll('.algo-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            config.algorithm = algo;
+        }
 
         function showMenu() {
             document.getElementById('menu').style.display = 'block';
@@ -320,13 +417,21 @@
         async function startGame() {
             gameOver = false;
             winningLine = null;
+            currentPlayer = 'X';
             document.getElementById('result').textContent = '';
             document.getElementById('result').className = 'game-result';
             document.getElementById('stats').textContent = '';
-            document.getElementById('status').textContent = 'Starting...';
             document.getElementById('menu').style.display = 'none';
             document.getElementById('game').style.display = 'block';
 
+            if (config.mode === '2p') {
+                document.getElementById('status').textContent = "X's turn";
+                document.getElementById('stats').textContent = '2 Player Mode';
+                render2PBoard();
+                return;
+            }
+
+            document.getElementById('status').textContent = 'Starting...';
             const res = await fetch('/api/new', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -342,6 +447,84 @@
             document.getElementById('status').textContent = 'Your turn';
         }
 
+        /* 2-player local mode */
+        let localGrid = [];
+
+        function render2PBoard() {
+            const n = config.size;
+            localGrid = Array.from({length: n}, () => Array(n).fill('.'));
+            currentPlayer = 'X';
+            drawLocalBoard();
+        }
+
+        function drawLocalBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            board.className = `board size-${config.size}`;
+            board.style.gridTemplateColumns = `repeat(${config.size}, 1fr)`;
+            const n = config.size;
+
+            for (let r = 0; r < n; r++) {
+                for (let c = 0; c < n; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    const val = localGrid[r][c];
+                    if (val === 'X') { cell.textContent = 'X'; cell.classList.add('x', 'taken'); }
+                    else if (val === 'O') { cell.textContent = 'O'; cell.classList.add('o', 'taken'); }
+                    if (gameOver) cell.classList.add('game-over');
+                    if (winningLine) {
+                        for (const [wr, wc] of winningLine) {
+                            if (wr === r && wc === c) cell.classList.add('win');
+                        }
+                    }
+                    cell.addEventListener('click', () => localMove(r, c));
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        function localMove(r, c) {
+            if (gameOver || localGrid[r][c] !== '.') return;
+            localGrid[r][c] = currentPlayer;
+
+            const win = checkLocalWin(currentPlayer);
+            const full = localGrid.flat().every(v => v !== '.');
+
+            if (win) {
+                gameOver = true;
+                winningLine = win;
+                document.getElementById('result').textContent = `${currentPlayer} wins!`;
+                document.getElementById('result').className = 'game-result win';
+                document.getElementById('status').textContent = 'Game over';
+            } else if (full) {
+                gameOver = true;
+                document.getElementById('result').textContent = "It's a draw!";
+                document.getElementById('result').className = 'game-result draw';
+                document.getElementById('status').textContent = 'Game over';
+            } else {
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                document.getElementById('status').textContent = `${currentPlayer}'s turn`;
+            }
+            drawLocalBoard();
+        }
+
+        function checkLocalWin(sym) {
+            const n = config.size;
+            for (let r = 0; r < n; r++) {
+                if (localGrid[r].every(v => v === sym)) return localGrid[r].map((_, c) => [r, c]);
+            }
+            for (let c = 0; c < n; c++) {
+                if (Array.from({length: n}, (_, r) => localGrid[r][c]).every(v => v === sym))
+                    return Array.from({length: n}, (_, r) => [r, c]);
+            }
+            if (Array.from({length: n}, (_, i) => localGrid[i][i]).every(v => v === sym))
+                return Array.from({length: n}, (_, i) => [i, i]);
+            if (Array.from({length: n}, (_, i) => localGrid[i][n-1-i]).every(v => v === sym))
+                return Array.from({length: n}, (_, i) => [i, n-1-i]);
+            return null;
+        }
+
+        /* CPU mode rendering */
         function renderBoard(data) {
             const board = document.getElementById('board');
             board.innerHTML = '';
@@ -353,27 +536,14 @@
                     const cell = document.createElement('div');
                     cell.className = 'cell';
                     const val = data.grid[r][c];
-
-                    if (val === 'X') {
-                        cell.textContent = 'X';
-                        cell.classList.add('x', 'taken');
-                    } else if (val === 'O') {
-                        cell.textContent = 'O';
-                        cell.classList.add('o', 'taken');
-                    }
-
-                    if (gameOver) {
-                        cell.classList.add('game-over');
-                    }
-
+                    if (val === 'X') { cell.textContent = 'X'; cell.classList.add('x', 'taken'); }
+                    else if (val === 'O') { cell.textContent = 'O'; cell.classList.add('o', 'taken'); }
+                    if (gameOver) cell.classList.add('game-over');
                     if (winningLine) {
                         for (const [wr, wc] of winningLine) {
-                            if (wr === r && wc === c) {
-                                cell.classList.add('win');
-                            }
+                            if (wr === r && wc === c) cell.classList.add('win');
                         }
                     }
-
                     cell.addEventListener('click', () => makeMove(r, c));
                     board.appendChild(cell);
                 }
@@ -382,7 +552,6 @@
 
         async function makeMove(row, col) {
             if (gameOver) return;
-
             const cell = document.querySelector(`.board .cell:nth-child(${row * config.size + col + 1})`);
             if (cell && cell.classList.contains('taken')) return;
 
@@ -393,7 +562,6 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ row, col })
             });
-
             if (!res.ok) return;
             const data = await res.json();
 
@@ -408,6 +576,8 @@
                 } else if (data.winner === config.human) {
                     resultEl.textContent = 'You win!';
                     resultEl.className = 'game-result win';
+                    score++;
+                    document.getElementById('scoreCount').textContent = score;
                 } else {
                     resultEl.textContent = 'AI wins!';
                     resultEl.className = 'game-result lose';
