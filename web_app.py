@@ -62,9 +62,10 @@ def new_game():
         "stats": None,
     }
 
-    # If AI goes first
+    # If AI goes first, play center immediately (optimal opening)
     if board.current_player() == ai_symbol:
-        move = ai.get_move(board)
+        center = size // 2
+        move = (center, center)
         board.make_move(move[0], move[1], ai_symbol)
         result["grid"] = _board_to_list(board)
         result["current"] = board.current_player()
