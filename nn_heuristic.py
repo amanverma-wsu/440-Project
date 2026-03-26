@@ -294,34 +294,51 @@ def train_nn(board_size=3, epochs=500, lr=0.001, batch_size=64, verbose=True):
 _cached_models = {}
 
 
+def _load_numpy_weights(board_size):
+    """Load PyTorch weights and convert to NumPy arrays for fast inference."""
+    input_size = board_size * board_size + 1
+    weight_path = f"results/nn_weights_{board_size}x{board_size}.pt"
+    if not os.path.exists(weight_path):
+        raise FileNotFoundError(
+            f"No trained model found at {weight_path}. "
+            f"Run train_nn(board_size={board_size}) first."
+        )
+    state = torch.load(weight_path, weights_only=True)
+    # Extract weights as NumPy: net.0=Linear(in,64), net.2=Linear(64,32), net.4=Linear(32,1)
+    w1 = state['net.0.weight'].numpy()
+    b1 = state['net.0.bias'].numpy()
+    w2 = state['net.2.weight'].numpy()
+    b2 = state['net.2.bias'].numpy()
+    w3 = state['net.4.weight'].numpy()
+    b3 = state['net.4.bias'].numpy()
+    return (w1, b1, w2, b2, w3, b3)
+
+
+def _numpy_forward(weights, x):
+    """Fast NumPy forward pass: Linear->ReLU->Linear->ReLU->Linear->Tanh."""
+    w1, b1, w2, b2, w3, b3 = weights
+    h = np.maximum(0, x @ w1.T + b1)       # ReLU
+    h = np.maximum(0, h @ w2.T + b2)       # ReLU
+    out = h @ w3.T + b3                     # Linear
+    return np.tanh(out)[0]                  # Tanh, scalar
+
+
 def make_nn_heuristic(board_size=3):
     """Return a heuristic function that uses the trained neural network.
 
     The returned function has signature: (board, ai_player, opponent) -> float
     matching the existing evaluate_board interface.
+    Uses pure NumPy inference for speed.
     """
 
     def nn_evaluate(board, ai_player, opponent):
-        # Lazy-load model on first call
         if board_size not in _cached_models:
-            input_size = board_size * board_size + 1
-            model = BoardNet(input_size=input_size)
-            weight_path = f"results/nn_weights_{board_size}x{board_size}.pt"
-            if not os.path.exists(weight_path):
-                raise FileNotFoundError(
-                    f"No trained model found at {weight_path}. "
-                    f"Run train_nn(board_size={board_size}) first."
-                )
-            model.load_state_dict(torch.load(weight_path, weights_only=True))
-            model.eval()
-            _cached_models[board_size] = model
+            _cached_models[board_size] = _load_numpy_weights(board_size)
 
-        model = _cached_models[board_size]
+        weights = _cached_models[board_size]
         encoded = encode_board(board, ai_player, opponent)
-        with torch.no_grad():
-            tensor_input = torch.tensor(encoded).unsqueeze(0)
-            score = model(tensor_input).item()
-        return score * 10.0  # Scale back to [-10, 10] range
+        score = _numpy_forward(weights, encoded)
+        return float(score) * 10.0
 
     return nn_evaluate
 

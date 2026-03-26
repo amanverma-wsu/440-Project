@@ -155,5 +155,5 @@ def _find_winning_line(board, symbol):
 
 
 if __name__ == "__main__":
-    print("\n  Open http://localhost:5000 in your browser\n")
-    app.run(debug=False, port=5000)
+    print("\n  Open http://localhost:8080 in your browser\n")
+    app.run(debug=False, port=8080)
