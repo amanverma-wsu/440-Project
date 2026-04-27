@@ -40,11 +40,6 @@ CLI:
 python game.py
 ```
 
-GUI:
-```bash
-python gui.py
-```
-
 Web App:
 ```bash
 python webapp.py
@@ -58,7 +53,10 @@ Open: http://127.0.0.1:5000/
 ```bash
 python experiments.py
 ```
-
+## Benchmarking
+```
+python benchmark.py
+```
 ---
 
 ## Authors
