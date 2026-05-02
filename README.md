@@ -3,23 +3,40 @@
 CPTS 440 Project  
 Washington State University  
 
+---
+
 ## Overview
 
-This project implements a configurable **n×n Tic-Tac-Toe AI system** using adversarial search techniques from artificial intelligence. The primary focus is on **Minimax search**, **Alpha-Beta pruning**, **depth-limited search**, and **heuristic evaluation**.
+This project implements a configurable **n×n Tic-Tac-Toe AI system** using both classical adversarial search and modern learning-based techniques.
 
-The system supports **3×3, 4×4, and 5×5** boards. For 3×3 boards, the AI performs full-depth search to guarantee optimal play. For larger boards, where exhaustive search becomes infeasible, the system uses depth-limited search with a heuristic evaluation function.
+The system demonstrates:
 
-The project also includes experimental extensions using **Q-Learning** and a **Neural Network heuristic**. These are used for comparison, while the most reliable method remains **Alpha-Beta pruning**.
+- **Minimax search** for optimal decision-making  
+- **Alpha-Beta pruning** for efficient search  
+- **Depth-limited search with heuristics** for scalability  
+- **Q-Learning** (reinforcement learning)  
+- **Neural Network heuristic** (learning-based evaluation)  
+
+The AI supports **3×3, 4×4, and 5×5 boards**.
+
+---
+
+## Key Results
+
+- Minimax: ~179,000 nodes per move  
+- Alpha-Beta: ~6,800 nodes per move  
+- **~96% reduction in node exploration**  
+- **~25× speed improvement**  
 
 ---
 
 ## Features
 
 - Configurable board sizes: **3×3, 4×4, 5×5**
-- Multiple AI agents (Minimax, Alpha-Beta, Q-Learning, Neural Net)
-- CLI, GUI (Pygame), and Web App (Flask)
+- Multiple AI agents
+- CLI, GUI, and Web App
 - Benchmarking and experiments
-- Visualization outputs
+- Guided Colab demo notebook
 
 ---
 
@@ -35,16 +52,26 @@ pip install -r requirements.txt
 
 ## Run
 
-CLI:
+### CLI
 ```bash
 python game.py
 ```
 
-Web App:
+### Web App
 ```bash
-python webapp.py
+python web_app.py
 ```
-Open: http://127.0.0.1:5000/
+
+Open:
+http://127.0.0.1:5000/
+
+---
+
+## Benchmark
+
+```bash
+python benchmark.py
+```
 
 ---
 
@@ -53,14 +80,23 @@ Open: http://127.0.0.1:5000/
 ```bash
 python experiments.py
 ```
-## Benchmarking
-```
-python benchmark.py
-```
+
+---
+
+## Demo Notebook
+
+Guided_Demo.ipynb
+
+---
+
+## Presentation
+
+440_AI_TicTacToe.pptx
+
 ---
 
 ## Authors
 
 Aman Verma  
 Nicholas Vendeland  
-Jason Lu
+Jason Lu  
